@@ -46,12 +46,12 @@ Users can create accounts and login.
 
 Each type of user has access to different functionalities of the app.
 
-| **Endpoint / Type of User**  | **Regular User (The Employee)** | **Admin** |
-| :----:       |    :----:   | :----: |
-| **Get**      | <ul><li>View all desk reservations made by them.</li><li>View the available desks and their details.</li><li>See their profile and favorite desk.</li></ul>     | <ul><li>View all users and their desk reservations.</li><li>See all rooms, desks, and their availability.</li><li>See all reservations in the system.</li></ul> |
-| **Create**   | <ul><li>Create new desk reservations for themselves.</li><li>Mark a desk as favorite.</li></ul>        |  <ul><li>Create new users and assign them roles.</li><li>Create new rooms and desks.</li><li>Manage desk availability and reservations.</li></ul> |
-| **Update**   | <ul><li>Update their desk reservation details (e.g., time, desk).</li><li>Update their profile.</li></ul>        |  <ul><li>Update any user's reservation details.</li><li>Update desks, rooms, and users' profiles.</li></ul> |
-| **Delete**   | <ul><li>Delete their desk reservations.</li></ul>         |  <ul><li>Delete any desk reservation, user, room, or desk.</li></ul> |
+| **Endpoint / Type of User**  |                                                               **Regular User (The Employee)**                                                               |                                                                            **Admin**                                                                            |
+| :----:       |:-----------------------------------------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| **Get**      | <ul><li>View all desk reservations made by them.</li><li>View the available desks and their details.</li><li>See their profile and favorite desk.</li></ul> | <ul><li>View all users and their desk reservations.</li><li>See all rooms, desks, and their availability.</li><li>See all reservations in the system.</li></ul> |
+| **Create**   |                               <ul><li>Create new desk reservations for themselves.</li><li>Mark a desk as favorite.</li></ul>                               |        <ul><li>Create new users and assign them roles.</li><li>Create new rooms and desks.</li><li>Manage desk availability and reservations.</li></ul>         |
+| **Update**   |                     <ul><li>Update their favourite desk and cancel reservation.</li><li></li></ul> <li>Update their password.</li></ul>                      |                                         <ul><li></li><li></li></ul>                                          |
+| **Delete**   |                                                       <ul><li>Delete their favourite desk.</li></ul>                                                        |                                                        <ul><li>Delete any user, room, or desk.</li></ul>                                                        |
 
 ### DETAILED BUSINESS REQUIREMENTS
 

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class RoleService {
@@ -25,7 +24,7 @@ public class RoleService {
         return roleRepository.findAll();
     }
 
-    public Role getRoleById(UUID id) {
+    public Role getRoleById(Long id) {
         Optional<Role> role = roleRepository.findById(id);
         if (role.isPresent()) {
             return role.get();
@@ -57,10 +56,10 @@ public class RoleService {
         return roleRepository.save(role);
     }
 
-    public void delete(UUID uuid) throws RoleNotFoundException {
-        Optional<Role> role = roleRepository.findById(uuid);
+    public void delete(Long id) throws RoleNotFoundException {
+        Optional<Role> role = roleRepository.findById(id);
         if (role.isPresent()) {
-            roleRepository.deleteById(uuid);
+            roleRepository.deleteById(id);
         } else {
             throw new RoleNotFoundException();
         }

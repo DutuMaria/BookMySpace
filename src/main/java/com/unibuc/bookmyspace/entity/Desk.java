@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+
+import java.util.Set;
 
 @Data
 @Entity
@@ -14,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class Desk {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long deskId;
 
     @NotNull
     private Integer deskNumber;
@@ -24,4 +27,19 @@ public class Desk {
     @JsonIgnore
     @NotNull
     private Room room;
+
+    @OneToMany(mappedBy = "desk", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    private Set<Reservation> reservations;
+
+    @OneToMany(mappedBy = "favouriteDesk", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    private Set<AppUser> users;
+
+    public Desk(Integer deskNumber, Room room) {
+        this.deskNumber = deskNumber;
+        this.room = room;
+    }
 }

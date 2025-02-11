@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import java.util.Set;
-import java.util.UUID;
 
 @Data
 @Entity
@@ -15,10 +17,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class AppUser {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(nullable = false, updatable = false)
-    @NotNull
-    private UUID userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
 
     @NotNull
     private String firstName;
@@ -44,8 +44,12 @@ public class AppUser {
     @JsonIgnore
     private Set<Reservation> reservations;
 
-    public AppUser(UUID userId, String firstName, String lastName, String email, String password) {
-        this.userId = userId;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "desk_id", referencedColumnName = "deskId")
+    @JsonIgnore
+    private Desk favouriteDesk;
+
+    public AppUser(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;

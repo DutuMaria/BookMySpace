@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class ReservationService {
@@ -37,11 +36,11 @@ public class ReservationService {
         return reservationRepository.findAllByDate(date);
     }
 
-    public List<Reservation> getAllReservationsByUser(UUID userId) {
+    public List<Reservation> getAllReservationsByUser(Long userId) {
         return reservationRepository.findByUser_UserId(userId);
     }
 
-    public Reservation cancelReservation(Long reservationId, UUID userId) {
+    public Reservation cancelReservation(Long reservationId, Long userId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reservation not found"));
 

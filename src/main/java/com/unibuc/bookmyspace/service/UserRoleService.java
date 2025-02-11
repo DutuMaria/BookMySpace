@@ -1,24 +1,26 @@
 package com.unibuc.bookmyspace.service;
 
 import com.unibuc.bookmyspace.embeddedId.UserRoleEmbeddedId;
-import com.unibuc.bookmyspace.entity.Role;
 import com.unibuc.bookmyspace.entity.AppUser;
-import com.unibuc.bookmyspace.entity.UserRole;
+import com.unibuc.bookmyspace.entity.Role;
 import com.unibuc.bookmyspace.entity.RoleName;
+import com.unibuc.bookmyspace.entity.UserRole;
+import com.unibuc.bookmyspace.repository.UserRepository;
 import com.unibuc.bookmyspace.repository.UserRoleRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class UserRoleService {
 
     private final UserRoleRepository userRoleRepository;
+    private final UserRepository userRepository;
     private final RoleService roleService;
 
-    public UserRoleService(UserRoleRepository userRoleRepository, RoleService roleService) {
+    public UserRoleService(UserRoleRepository userRoleRepository, UserRepository userRepository, RoleService roleService) {
         this.userRoleRepository = userRoleRepository;
+        this.userRepository = userRepository;
         this.roleService = roleService;
     }
 
@@ -30,11 +32,11 @@ public class UserRoleService {
         userRoleRepository.save(userRole);
     }
 
-    public List<UserRole> getAllRolesForGivenUser(UUID userId){
+    public List<UserRole> getAllRolesForGivenUser(Long userId){
         return userRoleRepository.queryBy(userId);
     }
 
-    public Boolean checkAdminRoleForGivenUser(UUID userId) {
+    public Boolean checkAdminRoleForGivenUser(Long userId) {
         var userRoles = getAllRolesForGivenUser(userId);
 
         for (var userRole : userRoles) {
@@ -45,19 +47,20 @@ public class UserRoleService {
         return false;
     }
 
-    public UserRole addUserRole(UUID userId, String roleName) {
+    public UserRole addUserRole(Long userId, String roleName) {
         RoleName roleNameEnum = switch (roleName.toLowerCase()) {
             case "admin" -> RoleName.ADMIN;
             case "user" -> RoleName.USER;
-            default -> null;
+            default -> throw new IllegalArgumentException("Invalid role name");
         };
 
         Role role = roleService.getRoleByName(roleNameEnum);
-        AppUser user = new AppUser(userId, null, null, null, null);
+        AppUser user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         UserRoleEmbeddedId userRoleEmbeddedId = new UserRoleEmbeddedId(role.getRoleId(), userId);
-
         UserRole userRole = new UserRole(userRoleEmbeddedId, user, role);
+
         return userRoleRepository.save(userRole);
     }
+
 }
 

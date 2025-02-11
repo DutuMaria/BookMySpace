@@ -53,7 +53,7 @@ public class DeskController {
         return ResponseEntity.ok(deskService.getAllDesks());
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/delete/{id}")
     @Operation(summary = "Delete a desk", description = "Delete a desk by its ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Desk successfully deleted"),

@@ -6,6 +6,7 @@ import com.unibuc.bookmyspace.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -14,10 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/reservation")
+@Tag(name = "Reservation", description = "Controller for managing reservations")
 public class ReservationController {
 
     private final ReservationService reservationService;
@@ -64,7 +65,7 @@ public class ReservationController {
             @ApiResponse(responseCode = "404", description = "No reservations found for the specified user")
     })
     public ResponseEntity<List<Reservation>> getReservationsByUser(
-            @PathVariable UUID userId) {
+            @PathVariable Long userId) {
         List<Reservation> reservations = reservationService.getAllReservationsByUser(userId);
         if (reservations.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -79,7 +80,7 @@ public class ReservationController {
             @ApiResponse(responseCode = "403", description = "User not authorized to cancel this reservation")
     })
     @PutMapping("/cancelReservation/{reservationId}/{userId}")
-    public ResponseEntity<Reservation> cancelReservation(@PathVariable Long reservationId, @PathVariable UUID userId) {
+    public ResponseEntity<Reservation> cancelReservation(@PathVariable Long reservationId, @PathVariable Long userId) {
         try {
             Reservation cancelledReservation = reservationService.cancelReservation(reservationId, userId);
             return new ResponseEntity<>(cancelledReservation, HttpStatus.OK);

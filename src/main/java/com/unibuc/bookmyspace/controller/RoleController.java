@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.management.relation.RoleNotFoundException;
 import java.util.List;
-import java.util.UUID;
 
 @RestController()
 @RequestMapping("/role")
@@ -28,7 +27,7 @@ public class RoleController {
 
     @PostMapping("/createRole/{name}")
     @Operation(summary = "Create a new role", description = "Create a new role based on the information received in the request's body")
-    @ApiResponse(responseCode = "200", description = "Role created successfully")
+    @ApiResponse(responseCode = "201", description = "Role created successfully")
     public ResponseEntity<Role> create(@PathVariable("name") @Parameter(description = "Name of the new role: should be user or admin") String name) {
         return ResponseEntity.ok(roleService.create(name));
     }
@@ -48,7 +47,7 @@ public class RoleController {
             @ApiResponse(responseCode = "200", description = "Role was found in the database"),
             @ApiResponse(responseCode = "404", description = "Role was NOT found in the database")
     })
-    public ResponseEntity<Role> getRoleById(@PathVariable("id") @Parameter(description = "The uuid of the user you want to get information about") UUID id) {
+    public ResponseEntity<Role> getRoleById(@PathVariable("id") @Parameter(description = "The id of the user you want to get information about") Long id) {
         return ResponseEntity.ok(roleService.getRoleById(id));
     }
 
@@ -58,7 +57,7 @@ public class RoleController {
             @ApiResponse(responseCode = "404", description = "Role was NOT found in the database")
     })
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Role>  delete(@PathVariable("id") @Parameter(description = "The uuid of the user you want to get information about") UUID id) throws RoleNotFoundException {
+    public ResponseEntity<Role>  delete(@PathVariable("id") @Parameter(description = "The id of the user you want to get information about") Long id) throws RoleNotFoundException {
         roleService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -35,9 +35,13 @@ II. The project should consist of a Spring Boot Application containing:
 
 ### DATABASE EXPLANATION
 Users can have one or more roles (Admin, User).
+
 Users can reserve one or more desks based on availability and personal preferences.
+
 Users have the ability to manage and update their desk reservations.
+
 Desks are assigned to rooms, and each room can have multiple desks.
+
 Each desk is associated with a room and can be booked by different users. Each reservation is tied to a specific time slot and user, ensuring efficient space management within the app.
 
 ## REST ENDPOINTS - BUSINESS REQUIREMENTS
@@ -101,11 +105,14 @@ Each type of user has access to different functionalities of the app.
 
 ### Entities
 
-There are 6 entities (*User, UserRole, Role, Desk, Room, Reservation*).
+There are 6 entities (*AppUser, UserRole, Role, Desk, Room, Reservation*).
+
 Each entity is annotated with **@Entity** and other Lombok annotations (used mainly for writing less and cleaner code, but providing the constructors, getters, setters and toString, hashcode and equals functions)
+
 Each entity has a unique identifier, generated automatically by Spring when the object is saved into the database. All ids are Long.
 
 One entity (*UserRole*) has embedded id, as these tables are the result of Many-to-Many relationships, therefore needing a composed primary key (the two primary keys of the main entities).
+
 Each embedded id is a separated class, which can be found in the embeddedIds package.
 
 I used  *@NotNull* annotation on the fields that should not have null values. I also used @Email and @Valid annotation to trigger validation of POJOs in requests.
@@ -189,7 +196,7 @@ The *@Parameter* annotation is only used for Swagger.
 
 ```java
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") @Parameter(description = "The uuid of the user") UUID id){
+    public ResponseEntity<?> delete(@PathVariable("id") @Parameter(description = "The id of the user") Long id){
         userService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -211,10 +218,10 @@ public class UserNotFoundException extends RuntimeException {
 They are thrown in the services methods. For example, if the user with a given id is not found, the method will throw the UserNotFound exception.
 
 ```java 
-    public void delete(UUID uuid) {
-        Optional<User> user = userRepository.findById(uuid);
+    public void delete(Long id) {
+        Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
-            userRepository.deleteById(uuid);
+            userRepository.deleteById(id);
         } else {
             throw new UserNotFoundException();
         }

@@ -1,18 +1,22 @@
 package com.unibuc.bookmyspace.controller;
 
+import com.unibuc.bookmyspace.dto.UserRequest;
 import com.unibuc.bookmyspace.entity.AppUser;
+import com.unibuc.bookmyspace.entity.Desk;
+import com.unibuc.bookmyspace.service.DeskService;
 import com.unibuc.bookmyspace.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
@@ -20,9 +24,11 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final DeskService deskService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, DeskService deskService) {
         this.userService = userService;
+        this.deskService = deskService;
     }
 
     @PostMapping("/register")
@@ -31,7 +37,7 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "The user has been successfully created!"),
             @ApiResponse(responseCode = "409", description = "There is already an user with the specified email!")
     })
-    public ResponseEntity<AppUser> create(@RequestBody @Parameter(description = "User data provided by the register form") AppUser user) {
+    public ResponseEntity<AppUser> create(@RequestBody @Valid @Parameter(description = "User data provided by the register form") UserRequest user) {
         return new ResponseEntity<>(userService.register(user), HttpStatus.CREATED);
     }
 
@@ -51,7 +57,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User was NOT found in the database")
     })
     @GetMapping("/getById/{id}")
-    public ResponseEntity<AppUser> getUserById(@PathVariable("id") @Parameter(description = "The uuid of the user you want to get information about") UUID id) {
+    public ResponseEntity<AppUser> getUserById(@PathVariable("id") @Parameter(description = "The id of the user you want to get information about") Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
@@ -70,9 +76,62 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User was NOT found in the database")
     })
     @PostMapping("/changePassword/{id}")
-    public ResponseEntity<?> changePassword(@PathVariable("id") @Parameter(description = "The uuid of the user") UUID id, @RequestBody String password){
+    public ResponseEntity<?> changePassword(@PathVariable("id") @Parameter(description = "The id of the user") Long id, @RequestBody String password){
         userService.changePassword(id, password);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("addFavouriteDesk/{userId}/{deskId}")
+    @Operation(summary = "Add a favourite desk to user", description = "Assign favourite desk to user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Desk added to favourite"),
+            @ApiResponse(responseCode = "404", description = "User or Desk not found")
+    })
+    public ResponseEntity<AppUser> addFavouriteDesk(@PathVariable Long userId, @PathVariable Long deskId) {
+        Optional<AppUser> user = Optional.ofNullable(userService.getUserById(userId));
+        Optional<Desk> desk = Optional.ofNullable(deskService.getDeskById(deskId));
+
+        if (user.isEmpty() || desk.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        AppUser updatedUser = userService.addFavouriteDesk(user.get(), desk.get());
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+    }
+
+    @PutMapping("/updateFavouriteDesk/{userId}/{deskId}")
+    @Operation(summary = "Update the user's favourite desk", description = "Change the user's favourite desk to a new desk")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Favourite desk updated"),
+            @ApiResponse(responseCode = "404", description = "User or Desk not found")
+    })
+    public ResponseEntity<AppUser> updateFavouriteDesk(@PathVariable Long userId, @PathVariable Long deskId) {
+        Optional<AppUser> user = Optional.ofNullable(userService.getUserById(userId));
+        Optional<Desk> desk = Optional.ofNullable(deskService.getDeskById(deskId));
+
+        if (user.isEmpty() || desk.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        AppUser updatedUser = userService.updateFavouriteDesk(user.get(), desk.get());
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/deleteFavouriteDesk/{userId}")
+    @Operation(summary = "Remove the user's favourite desk", description = "Remove the desk from the user's favourites")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Favourite desk removed"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public ResponseEntity<AppUser> deleteFavouriteDesk(@PathVariable Long userId) {
+        Optional<AppUser> user = Optional.ofNullable(userService.getUserById(userId));
+
+        if (user.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        AppUser updatedUser = userService.removeFavouriteDesk(user.get());
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
     @Operation(summary = "Delete a given user", description = "Delete a certain user by providing their id")
@@ -81,7 +140,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User was NOT found in the database")
     })
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") @Parameter(description = "The uuid of the user") UUID id){
+    public ResponseEntity<?> delete(@PathVariable("id") @Parameter(description = "The id of the user") Long id){
         userService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }

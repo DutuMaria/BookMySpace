@@ -10,8 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController()
 @RequestMapping("/userRole")
 @Tag(name = "User - Role", description = "Controller for managing user-roles")
@@ -29,7 +27,7 @@ public class UserRoleController {
             @ApiResponse(responseCode = "404", description = "User was NOT found in the database")
     })
     @GetMapping("/checkAdmin/{id}")
-    public ResponseEntity<Boolean> checkIfUserIsAdmin(@PathVariable("id") @Parameter(description = "The id of the user you want to check") UUID userId) {
+    public ResponseEntity<Boolean> checkIfUserIsAdmin(@PathVariable("id") @Parameter(description = "The id of the user you want to check") Long userId) {
         return ResponseEntity.ok(userRoleService.checkAdminRoleForGivenUser(userId));
     }
 
@@ -39,7 +37,7 @@ public class UserRoleController {
             @ApiResponse(responseCode = "404", description = "User was NOT found in the database")
     })
     @PostMapping("/addRole/{id}/{role}")
-    public ResponseEntity<UserRole> addUserRole(@PathVariable("id") @Parameter(description = "Id of the user") UUID userId, @PathVariable("role") @Parameter(description = "Role name") String role) {
+    public ResponseEntity<UserRole> addUserRole(@PathVariable("id") @Parameter(description = "Id of the user") Long userId, @PathVariable("role") @Parameter(description = "Role name") String role) {
         return ResponseEntity.ok(userRoleService.addUserRole(userId, role));
     }
 }

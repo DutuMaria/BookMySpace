@@ -1,9 +1,11 @@
 package com.unibuc.bookmyspace.service;
 
+import com.unibuc.bookmyspace.dto.RoomRequest;
 import com.unibuc.bookmyspace.entity.Desk;
 import com.unibuc.bookmyspace.entity.Room;
 import com.unibuc.bookmyspace.exception.RoomAlreadyExistsException;
 import com.unibuc.bookmyspace.exception.RoomNotFoundException;
+import com.unibuc.bookmyspace.mapper.RoomMapper;
 import com.unibuc.bookmyspace.repository.RoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,16 +17,19 @@ import java.util.List;
 public class RoomService {
 
     private final RoomRepository roomRepository;
+    private final RoomMapper roomMapper;
 
     @Autowired
     public RoomService(RoomRepository roomRepository) {
         this.roomRepository = roomRepository;
+        this.roomMapper = new RoomMapper();
     }
 
-    public Room createRoom(Room room) {
-        roomRepository.findByNameAndFloor(room.getName(), room.getFloor()).ifPresent(existingRoom -> {
+    public Room createRoom(RoomRequest roomRequest) {
+        roomRepository.findByNameAndFloor(roomRequest.getName(), roomRequest.getFloor()).ifPresent(existingRoom -> {
             throw new RoomAlreadyExistsException("There is already a room with that name on that floor!");
         });
+        Room room = roomMapper.roomRequestToRoom(roomRequest);
         return roomRepository.save(room);
     }
 

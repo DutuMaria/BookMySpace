@@ -1,8 +1,11 @@
 package com.unibuc.bookmyspace.service;
 
+import com.unibuc.bookmyspace.dto.UserRequest;
 import com.unibuc.bookmyspace.entity.AppUser;
+import com.unibuc.bookmyspace.entity.Desk;
 import com.unibuc.bookmyspace.exception.UserAlreadyExistsException;
 import com.unibuc.bookmyspace.exception.UserNotFoundException;
+import com.unibuc.bookmyspace.mapper.UserMapper;
 import com.unibuc.bookmyspace.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -10,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class UserService {
@@ -18,21 +20,26 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserRoleService userRoleService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserMapper userMapper;
 
     @Autowired
-    public UserService(UserRepository userRepository, UserRoleService userRoleService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserService(UserRepository userRepository, UserRoleService userRoleService, BCryptPasswordEncoder bCryptPasswordEncoder, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.userRoleService = userRoleService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.userMapper = userMapper;
     }
 
-    public AppUser register(AppUser user) {
-        userRepository.findByEmail(user.getEmail()).ifPresent(ex -> {
+    public AppUser register(UserRequest userRequest) {
+        userRepository.findByEmail(userRequest.getEmail()).ifPresent(ex -> {
             throw new UserAlreadyExistsException();
         });
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        userRoleService.addRoleForUser(user);
-        return userRepository.save(user);
+
+        AppUser appUser = userMapper.userRequestToUser(userRequest);
+        appUser.setPassword(bCryptPasswordEncoder.encode(userRequest.getPassword()));
+        userRoleService.addRoleForUser(appUser);
+
+        return userRepository.save(appUser);
     }
 
     public AppUser login(AppUser user) {
@@ -49,8 +56,8 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public AppUser getUserById(UUID uuid) {
-        Optional<AppUser> user = userRepository.findById(uuid);
+    public AppUser getUserById(Long id) {
+        Optional<AppUser> user = userRepository.findById(id);
         if (user.isPresent()) {
             return user.get();
         } else {
@@ -58,8 +65,8 @@ public class UserService {
         }
     }
 
-    public void changePassword(UUID uuid, String password) {
-        Optional<AppUser> user = userRepository.findById(uuid);
+    public void changePassword(Long id, String password) {
+        Optional<AppUser> user = userRepository.findById(id);
         if (user.isPresent()) {
             user.get().setPassword(bCryptPasswordEncoder.encode(password));
             userRepository.save(user.get());
@@ -68,10 +75,25 @@ public class UserService {
         }
     }
 
-    public void delete(UUID uuid) {
-        Optional<AppUser> user = userRepository.findById(uuid);
+    public AppUser addFavouriteDesk(AppUser user, Desk desk) {
+        user.setFavouriteDesk(desk);
+        return userRepository.save(user);
+    }
+
+    public AppUser updateFavouriteDesk(AppUser user, Desk desk) {
+        user.setFavouriteDesk(desk);
+        return userRepository.save(user);
+    }
+
+    public AppUser removeFavouriteDesk(AppUser user) {
+        user.setFavouriteDesk(null);
+        return userRepository.save(user);
+    }
+
+    public void delete(Long id) {
+        Optional<AppUser> user = userRepository.findById(id);
         if (user.isPresent()) {
-            userRepository.deleteById(uuid);
+            userRepository.deleteById(id);
         } else {
             throw new UserNotFoundException();
         }

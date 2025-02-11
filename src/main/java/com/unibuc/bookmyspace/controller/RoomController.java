@@ -1,5 +1,6 @@
 package com.unibuc.bookmyspace.controller;
 
+import com.unibuc.bookmyspace.dto.RoomRequest;
 import com.unibuc.bookmyspace.entity.Desk;
 import com.unibuc.bookmyspace.entity.Room;
 import com.unibuc.bookmyspace.service.RoomService;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +31,9 @@ public class RoomController {
     @Operation(summary = "Create a room", description = "Creates a new room based on the information received in the request's body")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "The room has been successfully created!"),
-            @ApiResponse(responseCode = "409", description = "A room with the same name already exists on this floor!")
+            @ApiResponse(responseCode = "400", description = "A room with the same name already exists on this floor!")
     })
-    public ResponseEntity<Room> create(@RequestBody @Parameter(description = "Room data") Room room) {
+    public ResponseEntity<Room> create(@RequestBody @Valid @Parameter(description = "Room data") RoomRequest room) {
         return new ResponseEntity<>(roomService.createRoom(room), HttpStatus.CREATED);
     }
 

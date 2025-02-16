@@ -1,12 +1,14 @@
 package com.unibuc.bookmyspace.controller;
 
 import com.unibuc.bookmyspace.entity.UserRole;
+import com.unibuc.bookmyspace.exception.UserNotFoundException;
 import com.unibuc.bookmyspace.service.UserRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +30,12 @@ public class UserRoleController {
     })
     @GetMapping("/checkAdmin/{id}")
     public ResponseEntity<Boolean> checkIfUserIsAdmin(@PathVariable("id") @Parameter(description = "The id of the user you want to check") Long userId) {
-        return ResponseEntity.ok(userRoleService.checkAdminRoleForGivenUser(userId));
+        try {
+            Boolean isAdmin = userRoleService.checkAdminRoleForGivenUser(userId);
+            return ResponseEntity.ok(isAdmin);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     @Operation(summary = "Add role for user", description = "Add role for user")
@@ -38,6 +45,10 @@ public class UserRoleController {
     })
     @PostMapping("/addRole/{id}/{role}")
     public ResponseEntity<UserRole> addUserRole(@PathVariable("id") @Parameter(description = "Id of the user") Long userId, @PathVariable("role") @Parameter(description = "Role name") String role) {
-        return ResponseEntity.ok(userRoleService.addUserRole(userId, role));
+        try {
+            return ResponseEntity.ok(userRoleService.addUserRole(userId, role));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }

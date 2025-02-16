@@ -2,11 +2,10 @@ package com.unibuc.bookmyspace.service;
 
 import com.unibuc.bookmyspace.entity.Role;
 import com.unibuc.bookmyspace.entity.RoleName;
-import com.unibuc.bookmyspace.exception.UserRoleNotFoundException;
+import com.unibuc.bookmyspace.exception.RoleNotFoundException;
 import com.unibuc.bookmyspace.repository.RoleRepository;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +28,7 @@ public class RoleService {
         if (role.isPresent()) {
             return role.get();
         } else {
-            throw new UserRoleNotFoundException();
+            throw new RoleNotFoundException();
         }
     }
 
@@ -38,7 +37,7 @@ public class RoleService {
         if (role.isPresent()) {
             return role.get();
         } else {
-            throw new UserRoleNotFoundException();
+            throw new RoleNotFoundException();
         }
     }
 
@@ -56,7 +55,7 @@ public class RoleService {
         return roleRepository.save(role);
     }
 
-    public void delete(Long id) throws RoleNotFoundException {
+    public void delete(Long id)  {
         Optional<Role> role = roleRepository.findById(id);
         if (role.isPresent()) {
             roleRepository.deleteById(id);

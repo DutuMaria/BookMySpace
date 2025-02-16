@@ -5,6 +5,7 @@ import com.unibuc.bookmyspace.entity.AppUser;
 import com.unibuc.bookmyspace.entity.Role;
 import com.unibuc.bookmyspace.entity.RoleName;
 import com.unibuc.bookmyspace.entity.UserRole;
+import com.unibuc.bookmyspace.exception.UserNotFoundException;
 import com.unibuc.bookmyspace.repository.UserRepository;
 import com.unibuc.bookmyspace.repository.UserRoleRepository;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,10 @@ public class UserRoleService {
     }
 
     public Boolean checkAdminRoleForGivenUser(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException("User not found");
+        }
+
         var userRoles = getAllRolesForGivenUser(userId);
 
         for (var userRole : userRoles) {

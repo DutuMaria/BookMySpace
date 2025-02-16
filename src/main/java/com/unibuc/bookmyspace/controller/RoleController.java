@@ -1,6 +1,7 @@
 package com.unibuc.bookmyspace.controller;
 
 import com.unibuc.bookmyspace.entity.Role;
+import com.unibuc.bookmyspace.exception.RoleNotFoundException;
 import com.unibuc.bookmyspace.service.RoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -11,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 
 @RestController()
@@ -48,7 +48,11 @@ public class RoleController {
             @ApiResponse(responseCode = "404", description = "Role was NOT found in the database")
     })
     public ResponseEntity<Role> getRoleById(@PathVariable("id") @Parameter(description = "The id of the user you want to get information about") Long id) {
-        return ResponseEntity.ok(roleService.getRoleById(id));
+        Role role = roleService.getRoleById(id);
+        if (role == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(role);
     }
 
     @Operation(summary = "Delete a given role", description = "Delete a certain role by providing its id")
@@ -57,8 +61,12 @@ public class RoleController {
             @ApiResponse(responseCode = "404", description = "Role was NOT found in the database")
     })
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Role>  delete(@PathVariable("id") @Parameter(description = "The id of the user you want to get information about") Long id) throws RoleNotFoundException {
-        roleService.delete(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<Role>  delete(@PathVariable("id") @Parameter(description = "The id of the user you want to get information about") Long id) {
+        try {
+            roleService.delete(id);
+            return ResponseEntity.ok().build();
+        } catch (RoleNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }

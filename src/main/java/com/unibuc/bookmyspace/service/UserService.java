@@ -1,6 +1,8 @@
 package com.unibuc.bookmyspace.service;
 
-import com.unibuc.bookmyspace.dto.UserRequest;
+import com.unibuc.bookmyspace.dto.user.ChangePasswordRequest;
+import com.unibuc.bookmyspace.dto.user.UserLoginRequest;
+import com.unibuc.bookmyspace.dto.user.UserRegisterRequest;
 import com.unibuc.bookmyspace.entity.AppUser;
 import com.unibuc.bookmyspace.entity.Desk;
 import com.unibuc.bookmyspace.exception.UserAlreadyExistsException;
@@ -30,19 +32,18 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    public AppUser register(UserRequest userRequest) {
+    public AppUser register(UserRegisterRequest userRequest) {
         userRepository.findByEmail(userRequest.getEmail()).ifPresent(ex -> {
             throw new UserAlreadyExistsException();
         });
-
         AppUser appUser = userMapper.userRequestToUser(userRequest);
         appUser.setPassword(bCryptPasswordEncoder.encode(userRequest.getPassword()));
+        appUser = userRepository.save(appUser);
         userRoleService.addRoleForUser(appUser);
-
-        return userRepository.save(appUser);
+        return appUser;
     }
 
-    public AppUser login(AppUser user) {
+    public AppUser login(UserLoginRequest user) {
         Optional<AppUser> userFromDB = userRepository.findByEmail(user.getEmail());
         if (userFromDB.isPresent()) {
             if (bCryptPasswordEncoder.matches(user.getPassword(), userFromDB.get().getPassword())){
@@ -65,13 +66,13 @@ public class UserService {
         }
     }
 
-    public void changePassword(Long id, String password) {
-        Optional<AppUser> user = userRepository.findById(id);
-        if (user.isPresent()) {
-            user.get().setPassword(bCryptPasswordEncoder.encode(password));
+    public void changePassword(ChangePasswordRequest changePasswordRequest) {
+        Optional<AppUser> user = userRepository.findByEmail(changePasswordRequest.getEmail());
+        if (user.isPresent() && bCryptPasswordEncoder.matches(changePasswordRequest.getCurrentPassword(), user.get().getPassword())) {
+            user.get().setPassword(bCryptPasswordEncoder.encode(changePasswordRequest.getCurrentPassword()));
             userRepository.save(user.get());
         } else {
-            throw new UserNotFoundException();
+            throw new UserNotFoundException("Invalid email or current password.");
         }
     }
 

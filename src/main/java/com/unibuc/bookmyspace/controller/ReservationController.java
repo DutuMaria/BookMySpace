@@ -1,9 +1,10 @@
 package com.unibuc.bookmyspace.controller;
 
+import com.unibuc.bookmyspace.dto.AddReservationRequest;
 import com.unibuc.bookmyspace.entity.Reservation;
-import com.unibuc.bookmyspace.exception.DeskAlreadyBookedException;
 import com.unibuc.bookmyspace.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,15 +33,12 @@ public class ReservationController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "The reservation has been successfully created!"),
             @ApiResponse(responseCode = "400", description = "A reservation already exists for this desk on the selected date!"),
+            @ApiResponse(responseCode = "404", description = "Desk or user not found!"),
             @ApiResponse(responseCode = "409", description = "Conflict with existing active reservation!")
     })
-    public ResponseEntity<Reservation> createReservation(@RequestBody @Valid Reservation reservation) {
-        try {
-            Reservation createdReservation = reservationService.createReservation(reservation);
-            return new ResponseEntity<>(createdReservation, HttpStatus.CREATED);
-        } catch (DeskAlreadyBookedException ex) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<?> createReservation(@RequestBody @Valid AddReservationRequest addReservationRequest) {
+        Reservation createdReservation = reservationService.createReservation(addReservationRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdReservation);
     }
 
     @GetMapping("/getAllReservationsByDate/{date}")
@@ -50,6 +48,7 @@ public class ReservationController {
             @ApiResponse(responseCode = "404", description = "No reservations found for the specified date")
     })
     public ResponseEntity<List<Reservation>> getAllReservationsByDate(
+            @Parameter(description = "Date in format YYYY-MM-DD", example = "2025-02-16")
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<Reservation> reservations = reservationService.getAllReservationsByDate(date);
         if (reservations.isEmpty()) {

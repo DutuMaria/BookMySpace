@@ -24,7 +24,6 @@ public class Desk {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "room_id", referencedColumnName = "roomId")
-    @JsonIgnore
     @NotNull
     private Room room;
 

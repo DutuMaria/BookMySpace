@@ -1,6 +1,6 @@
 package com.unibuc.bookmyspace.controller;
 
-import com.unibuc.bookmyspace.dto.RoomRequest;
+import com.unibuc.bookmyspace.dto.AddRoomRequest;
 import com.unibuc.bookmyspace.entity.Desk;
 import com.unibuc.bookmyspace.entity.Room;
 import com.unibuc.bookmyspace.service.RoomService;
@@ -33,7 +33,7 @@ public class RoomController {
             @ApiResponse(responseCode = "201", description = "The room has been successfully created!"),
             @ApiResponse(responseCode = "400", description = "A room with the same name already exists on this floor!")
     })
-    public ResponseEntity<Room> create(@RequestBody @Valid @Parameter(description = "Room data") RoomRequest room) {
+    public ResponseEntity<Room> create(@RequestBody @Valid @Parameter(description = "Room data") AddRoomRequest room) {
         return new ResponseEntity<>(roomService.createRoom(room), HttpStatus.CREATED);
     }
 

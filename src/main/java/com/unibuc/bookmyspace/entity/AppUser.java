@@ -46,7 +46,6 @@ public class AppUser {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "desk_id", referencedColumnName = "deskId")
-    @JsonIgnore
     private Desk favouriteDesk;
 
     public AppUser(String firstName, String lastName, String email, String password) {

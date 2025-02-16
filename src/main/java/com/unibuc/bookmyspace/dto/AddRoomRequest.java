@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Schema(description = "Required details for creating a new room")
-public class RoomRequest {
+public class AddRoomRequest {
 
     @NotBlank(message = "Room name cannot be null or empty")
     @Schema(description = "Name of the room", required = true)

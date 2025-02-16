@@ -24,14 +24,14 @@ public class DeskController {
         this.deskService = deskService;
     }
 
-    @PostMapping("/addDesk/{roomId}")
+    @PostMapping("/addDesk/{roomId}/{deskNumber}")
     @Operation(summary = "Add a new desk", description = "Creates a new desk in the specified room")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "The desk has been successfully created!"),
             @ApiResponse(responseCode = "400", description = "Invalid input data!")
     })
-    public ResponseEntity<Desk> addDesk(@PathVariable("roomId") @Parameter(description = "ID of the room") Long roomId, @RequestBody @Parameter(description = "Desk data") Desk desk) {
-        return new ResponseEntity<>(deskService.addDesk(roomId, desk), HttpStatus.CREATED);
+    public ResponseEntity<Desk> addDesk(@PathVariable("roomId") @Parameter(description = "ID of the room") Long roomId, @PathVariable("deskNumber") @Parameter(description = "Desk number") Integer deskNumber) {
+        return new ResponseEntity<>(deskService.addDesk(roomId, deskNumber), HttpStatus.CREATED);
     }
 
     @GetMapping("getDesk/{id}")

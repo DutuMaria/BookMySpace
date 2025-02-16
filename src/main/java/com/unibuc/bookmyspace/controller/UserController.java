@@ -1,6 +1,8 @@
 package com.unibuc.bookmyspace.controller;
 
-import com.unibuc.bookmyspace.dto.UserRequest;
+import com.unibuc.bookmyspace.dto.user.ChangePasswordRequest;
+import com.unibuc.bookmyspace.dto.user.UserLoginRequest;
+import com.unibuc.bookmyspace.dto.user.UserRegisterRequest;
 import com.unibuc.bookmyspace.entity.AppUser;
 import com.unibuc.bookmyspace.entity.Desk;
 import com.unibuc.bookmyspace.service.DeskService;
@@ -15,7 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -37,7 +41,7 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "The user has been successfully created!"),
             @ApiResponse(responseCode = "409", description = "There is already an user with the specified email!")
     })
-    public ResponseEntity<AppUser> create(@RequestBody @Valid @Parameter(description = "User data provided by the register form") UserRequest user) {
+    public ResponseEntity<AppUser> create(@RequestBody @Valid @Parameter(description = "User data provided by the register form") UserRegisterRequest user) {
         return new ResponseEntity<>(userService.register(user), HttpStatus.CREATED);
     }
 
@@ -45,10 +49,17 @@ public class UserController {
     @Operation(summary = "Login an user", description = "Checks if the password and email provided in the request's body are correct")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The user has been successfully logged in!"),
-            @ApiResponse(responseCode = "401", description = "Email or password incorrect!")
+            @ApiResponse(responseCode = "400", description = "Email or password incorrect!")
     })
-    public ResponseEntity<AppUser> login(@RequestBody @Parameter(description = "User data provided by the login form") AppUser user) {
-        return ResponseEntity.ok(userService.login(user));
+    public ResponseEntity<Object> login(@RequestBody @Parameter(description = "User data provided by the login form") UserLoginRequest user) {
+        AppUser loggedInUser = userService.login(user);
+        if (loggedInUser != null) {
+            return ResponseEntity.ok(loggedInUser);
+        } else {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Email or password is incorrect");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
     }
 
     @Operation(summary = "Get information about an user", description = "Get information about a certain user by providing their id")
@@ -75,9 +86,9 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "User was found in the database"),
             @ApiResponse(responseCode = "404", description = "User was NOT found in the database")
     })
-    @PostMapping("/changePassword/{id}")
-    public ResponseEntity<?> changePassword(@PathVariable("id") @Parameter(description = "The id of the user") Long id, @RequestBody String password){
-        userService.changePassword(id, password);
+    @PostMapping("/changePassword/")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest){
+        userService.changePassword(changePasswordRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

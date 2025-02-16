@@ -32,4 +32,11 @@ public class Reservation {
     @Enumerated(EnumType.STRING)
     @NotNull
     private ReservationStatus status;
+
+    public Reservation(LocalDate date, Desk desk, AppUser user, ReservationStatus status) {
+        this.date = date;
+        this.desk = desk;
+        this.user = user;
+        this.status = status;
+    }
 }

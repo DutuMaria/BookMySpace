@@ -4,6 +4,7 @@ import com.unibuc.bookmyspace.entity.Desk;
 import com.unibuc.bookmyspace.entity.Room;
 import com.unibuc.bookmyspace.exception.DeskAlreadyExistsException;
 import com.unibuc.bookmyspace.exception.DeskNotFoundException;
+import com.unibuc.bookmyspace.exception.RoomCapacityExceededException;
 import com.unibuc.bookmyspace.exception.RoomNotFoundException;
 import com.unibuc.bookmyspace.repository.DeskRepository;
 import com.unibuc.bookmyspace.repository.RoomRepository;
@@ -24,19 +25,23 @@ public class DeskService {
         this.roomRepository = roomRepository;
     }
 
-    public Desk addDesk(Long roomId, Desk desk) {
+    public Desk addDesk(Long roomId, Integer deskNumber) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new RoomNotFoundException("Room with ID " + roomId + " not found"));
-        desk.setRoom(room);
 
-        boolean deskExists = deskRepository.existsByRoom_RoomIdAndDeskNumber(roomId, desk.getDeskNumber());
+        boolean deskExists = deskRepository.existsByRoom_RoomIdAndDeskNumber(roomId, deskNumber);
         if (deskExists) {
             throw new DeskAlreadyExistsException(
-                    "Desk with number " + desk.getDeskNumber() + " already exists in room with ID " + roomId);
+                    "Desk with number " + deskNumber + " already exists in room with ID " + roomId);
         }
 
-        desk.setRoom(room);
+        Integer nrOfExistingDesksInARoom = deskRepository.countDeskByRoom_RoomId(room.getRoomId());
 
+        if (nrOfExistingDesksInARoom >= room.getCapacity()) {
+            throw new RoomCapacityExceededException("Cannot add desk. Room capacity (" + room.getCapacity() + ") is already reached.");
+        }
+
+        Desk desk = new Desk(deskNumber, room);
         return deskRepository.save(desk);
     }
 
@@ -45,6 +50,7 @@ public class DeskService {
     }
 
     public Desk getDeskById(Long deskId) {
+        System.out.println(deskRepository.findById(deskId));
         return deskRepository.findById(deskId)
                 .orElseThrow(() -> new DeskNotFoundException("Desk with ID " + deskId + " not found"));
     }

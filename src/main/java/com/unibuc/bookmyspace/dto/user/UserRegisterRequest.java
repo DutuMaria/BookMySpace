@@ -1,4 +1,4 @@
-package com.unibuc.bookmyspace.dto;
+package com.unibuc.bookmyspace.dto.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Schema(description = "Required details for create new user request")
-public class UserRequest {
+public class UserRegisterRequest {
 
     @NotBlank(message = "First Name cannot be null")
     @Schema(description = "First Name used to create an account on this app", required = true)

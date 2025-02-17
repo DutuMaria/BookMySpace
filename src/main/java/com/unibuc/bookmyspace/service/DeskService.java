@@ -50,7 +50,6 @@ public class DeskService {
     }
 
     public Desk getDeskById(Long deskId) {
-        System.out.println(deskRepository.findById(deskId));
         return deskRepository.findById(deskId)
                 .orElseThrow(() -> new DeskNotFoundException("Desk with ID " + deskId + " not found"));
     }

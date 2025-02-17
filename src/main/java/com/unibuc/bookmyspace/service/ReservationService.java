@@ -49,7 +49,6 @@ public class ReservationService {
 
         checkIfActiveReservationExists(addReservationRequest.getDeskId(), addReservationRequest.getDate());
 
-        System.out.println("checked");
         Reservation reservation = reservationMapper.reservationRequestToReservation(addReservationRequest, user, desk);
         return reservationRepository.save(reservation);
     }

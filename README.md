@@ -246,19 +246,37 @@ I have tested the methods in the controllers and services. For this, I used JUni
 *Example Test Of a Controller Method*
 
 ```java
-    @Test
-    public void createReservation() throws Exception {
-    
-    }
+   @Test
+    void testCreateUser() {
+    when(userService.register(any(UserRegisterRequest.class))).thenReturn(user);
+    UserRegisterRequest request = new UserRegisterRequest();
+
+    ResponseEntity<AppUser> response = userController.create(request);
+    assertEquals(201, response.getStatusCodeValue());
+    assertNotNull(response.getBody());
+}
 ```
 
 *Example Test of a Service Method*
 
 ```java
     @Test
-    void create() {
-        
-    }
+    void register_ShouldRegisterUser_WhenUserDoesNotExist() {
+    UserRegisterRequest request = new UserRegisterRequest();
+    request.setEmail(user.getEmail());
+    request.setPassword("password");
+
+    when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+    when(userMapper.userRequestToUser(request)).thenReturn(user);
+    when(userRepository.save(user)).thenReturn(user);
+    when(bCryptPasswordEncoder.encode("password")).thenReturn("encodedPassword");
+
+    AppUser result = userService.register(request);
+
+    assertNotNull(result);
+    assertEquals(user.getEmail(), result.getEmail());
+    verify(userRoleService, times(1)).addRoleForUser(user);
+}
 ```
 
 
